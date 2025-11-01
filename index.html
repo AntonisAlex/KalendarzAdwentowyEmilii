@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <title>Kalendarz Adwentowy Emilii</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap" rel="stylesheet">
+
+  <style>
+    /* ---------- RESET & FONTS ---------- */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: 'Amasis MT Pro Medium', sans-serif;
+      background: url('https://wallpaperaccess.com/full/327393.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:24px;
+      color:#fff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
+    }
+
+    /* ---------- TITLE ---------- */
+    h1{
+      font-family: 'Momo Trust Display', sans-serif;
+      font-size: clamp(28px,4vw,48px);
+      color: #fff;
+      margin-bottom: 22px;
+      text-align:center;
+      text-shadow: 0 6px 18px rgba(0,0,0,0.6);
+      position:relative;
+      /* subtle gold shimmer */
+      background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,238,160,0.95), rgba(255,255,255,0.95));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmer 3.5s ease-in-out infinite;
+    }
+    @keyframes shimmer{
+      0%{background-position:-200px 0}
+      50%{background-position:200px 0}
+      100%{background-position:-200px 0}
+    }
+
+    /* ---------- GRID ---------- */
+    .grid-wrap{
+      width:100%;
+      max-width:1200px;
+      margin: 8px auto 40px;
+      padding: 20px;
+      border-radius: 20px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: minmax(100px, 1fr);
+      gap: 40px; /* zwiększony odstęp */
+      align-items: center;
+      justify-items: center;
+    }
+
+    /* ---------- DOORS (NEUMORPHIC) ---------- */
+    .door{
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-width: 120px;
+      background: linear-gradient(145deg, #f3f3f3, #dcdcdc);
+      border-radius: 18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: clamp(20px,2.5vw,30px);
+      color:#333;
+      cursor:pointer;
+      box-shadow: 12px 12px 24px rgba(0,0,0,0.18), -8px -8px 20px rgba(255,255,255,0.9);
+      user-select:none;
+      position:relative;
+      transition: transform .18s ease, box-shadow .18s ease;
+      font-family: 'Amasis MT Pro Medium', sans-serif;
+    }
+
+    /* Luminari-style number: we just use the Amasis font you requested */
+    .door span{
+      pointer-events:none;
+    }
+
+    /* hover gold glow + lift */
+    .door:hover{
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0 0 22px rgba(255,215,90,0.12), -6px -6px 18px rgba(255,255,255,0.9);
+    }
+
+    /* small "open" animation (pop/rotate) */
+    .door.open-anim{
+      transform: perspective(400px) rotateX(8deg) translateY(-8px);
+      transition: transform .25s cubic-bezier(.2,.9,.3,1);
+    }
+
+    /* a small golden rim */
+    .door::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      border-radius:18px;
+      padding:2px;
+      pointer-events:none;
+      background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,215,90,0));
+      opacity:0;
+      transition:opacity .18s ease;
+    }
+    .door:hover::after{ opacity: 1; }
+
+    /* ---------- MODAL ---------- */
+    .modal{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:60;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.6));
+      padding:20px;
+    }
+    .modal.active{ display:flex; }
+
+    .modal-box{
+      width:100%;
+      max-width:420px;
+      background:linear-gradient(145deg,#f5f5f5,#dcdcdc);
+      border-radius:16px;
+      padding:22px;
+      box-shadow: 14px 14px 30px rgba(0,0,0,0.25), -8px -8px 20px rgba(255,255,255,0.9);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+    }
+    .modal-box h2{
+      font-family: 'Momo Trust Display', sans-serif;
+      color:#222;
+      font-size:20px;
+      margin-bottom:4px;
+    }
+    .modal-box input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:none;
+      font-size:16px;
+      outline:none;
+      box-shadow: inset 4px 4px 8px rgba(0,0,0,0.06), inset -4px -4px 8px rgba(255,255,255,0.8);
+    }
+    .modal-btn{
+      margin-top:6px;
+      padding:10px 16px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-size:15px;
+      background: linear-gradient(180deg,#efe7d6,#e6d5b2);
+      box-shadow: 4px 6px 10px rgba(0,0,0,0.12);
+    }
+    .modal-msg{ font-size:14px; color:#333; min-height:20px; text-align:center;}
+
+    /* ---------- SNOW ---------- */
+    .snowflake{
+      position:fixed;
+      top:-10px;
+      z-index:50;
+      pointer-events:none;
+      user-select:none;
+      opacity:0.9;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+    }
+
+    /* ---------- AUDIO CONTROL (small button) ---------- */
+    .audio-toggle{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:70;
+      background:linear-gradient(145deg,#fffafa,#e9e9e9);
+      border-radius:50%;
+      width:56px;
+      height:56px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 8px 10px 20px rgba(0,0,0,0.2), -6px -6px 14px rgba(255,255,255,0.9);
+      cursor:pointer;
+    }
+    .audio-toggle svg{ width:26px; height:26px; display:block; fill:#333; }
+
+    /* ---------- RESPONSIVE tweaks ---------- */
+    @media (max-width:900px){
+      .grid{ gap:22px; grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width:600px){
+      .grid{ gap:16px; grid-template-columns: repeat(3, 1fr); }
+      .audio-toggle{ width:48px; height:48px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Kalendarz Adwentowy Emilii</h1>
+
+  <div class="grid-wrap">
+    <div class="grid" id="grid">
+      <!-- 24 okienka: numery od 1 do 24 -->
+      <!-- data-password jest ustawione na A..X (24 liter) -->
+      <div class="door" data-password="A" data-link="page1.html"><span>1</span></div>
+      <div class="door" data-password="B" data-link="page2.html"><span>2</span></div>
+      <div class="door" data-password="C" data-link="page3.html"><span>3</span></div>
+      <div class="door" data-password="D" data-link="page4.html"><span>4</span></div>
+      <div class="door" data-password="E" data-link="page5.html"><span>5</span></div>
+      <div class="door" data-password="F" data-link="page6.html"><span>6</span></div>
+
+      <div class="door" data-password="G" data-link="page7.html"><span>7</span></div>
+      <div class="door" data-password="H" data-link="page8.html"><span>8</span></div>
+      <div class="door" data-password="I" data-link="page9.html"><span>9</span></div>
+      <div class="door" data-password="J" data-link="page10.html"><span>10</span></div>
+      <div class="door" data-password="K" data-link="page11.html"><span>11</span></div>
+      <div class="door" data-password="L" data-link="page12.html"><span>12</span></div>
+
+      <div class="door" data-password="M" data-link="page13.html"><span>13</span></div>
+      <div class="door" data-password="N" data-link="page14.html"><span>14</span></div>
+      <div class="door" data-password="O" data-link="page15.html"><span>15</span></div>
+      <div class="door" data-password="P" data-link="page16.html"><span>16</span></div>
+      <div class="door" data-password="Q" data-link="page17.html"><span>17</span></div>
+      <div class="door" data-password="R" data-link="page18.html"><span>18</span></div>
+
+      <div class="door" data-password="S" data-link="page19.html"><span>19</span></div>
+      <div class="door" data-password="T" data-link="page20.html"><span>20</span></div>
+      <div class="door" data-password="U" data-link="page21.html"><span>21</span></div>
+      <div class="door" data-password="V" data-link="page22.html"><span>22</span></div>
+      <div class="door" data-password="W" data-link="page23.html"><span>23</span></div>
+      <div class="door" data-password="X" data-link="page24.html"><span>24</span></div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h2 id="modalTitle">Wprowadź hasło</h2>
+      <input id="passwordInput" autocomplete="off" placeholder="Hasło (wielkość liter nie ma znaczenia)">
+      <button class="modal-btn" id="submitBtn">Sprawdź</button>
+      <div class="modal-msg" id="modalMessage"></div>
+    </div>
+  </div>
+
+  <!-- AUDIO: tło + click -->
+  <!-- ZAMIEN: 'jingle-bells.mp3' i 'click.mp3' na własne pliki. -->
+  <audio id="bgAudio" loop preload="auto" autoplay>
+    <source src="jingle-bells.mp3" type="audio/mpeg">
+    Twoja przeglądarka nie obsługuje elementu audio.
+  </audio>
+  <audio id="clickAudio" preload="auto">
+    <source src="click.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- mały button wyciszania/włączania -->
+  <div class="audio-toggle" id="audioToggle" title="Wycisz / Włącz muzykę" aria-pressed="false">
+    <!-- ikona głośnika (muted by default if audio paused) -->
+    <svg id="audioIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 10v4h4l5 5V5L7 10H3z" />
+      <path id="cross" d="M16 8l5 5M21 8l-5 5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" visibility="hidden"/>
+    </svg>
+  </div>
+
+  <!-- SNOW container (we'll append flakes) -->
+  <div id="snow"></div>
+
+  <script>
+    /* ---------- BASIC SELECTORS ---------- */
+    const doors = document.querySelectorAll('.door');
+    const modal = document.getElementById('modal');
+    const passwordInput = document.getElementById('passwordInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const modalMessage = document.getElementById('modalMessage');
+    const bgAudio = document.getElementById('bgAudio');
+    const clickAudio = document.getElementById('clickAudio');
+    const audioToggle = document.getElementById('audioToggle');
+    const audioIcon = document.getElementById('audioIcon');
+    let currentDoor = null;
+
+    /* ---------- OPEN MODAL ON DOOR CLICK ---------- */
+    doors.forEach(door => {
+      door.addEventListener('click', (e) => {
+        // small open animation & play click sound
+        door.classList.add('open-anim');
+        setTimeout(()=> door.classList.remove('open-anim'), 250);
+
+        // try play click sound (may be blocked until user interacts)
+        if(clickAudio && typeof clickAudio.play === 'function'){
+          clickAudio.currentTime = 0;
+          clickAudio.play().catch(()=>{ /* ignore play errors */ });
+        }
+
+        currentDoor = door;
+        passwordInput.value = '';
+        modalMessage.textContent = '';
+        modal.classList.add('active');
+        passwordInput.focus();
+
+        // attempt to play background audio in case autoplay was blocked earlier
+        if(bgAudio && typeof bgAudio.play === 'function'){
+          bgAudio.play().catch(()=>{/* will play after user interaction */});
+        }
+      });
+    });
+
+    /* ---------- MODAL LOGIC ---------- */
+    function closeModal(){
+      modal.classList.remove('active');
+      currentDoor = null;
+    }
+    // close when clicking outside box
+    modal.addEventListener('click', (e) => {
+      if(e.target === modal) closeModal();
+    });
+
+    submitBtn.addEventListener('click', () => {
+      if(!currentDoor) return;
+      const val = passwordInput.value.trim().toUpperCase();
+      const expected = currentDoor.dataset.password.trim().toUpperCase();
+
+      if(val === expected){
+        modalMessage.style.color = 'green';
+        modalMessage.textContent = 'Poprawne! Przekierowanie...';
+        // small success pulse
+        currentDoor.style.boxShadow = '0 12px 30px rgba(0,0,0,0.25), 0 0 30px rgba(255,215,90,0.25)';
+        setTimeout(() => {
+          // tutaj tymczasowo przekierowanie do 'data-link'
+          window.location.href = currentDoor.dataset.link;
+        }, 900);
+      } else {
+        modalMessage.style.color = 'crimson';
+        modalMessage.textContent = 'Niepoprawne hasło — spróbuj jeszcze raz.';
+        // shake effect
+        modal.querySelector('.modal-box').animate([
+          { transform: 'translateX(0)' },
+          { transform: 'translateX(-8px)' },
+          { transform: 'translateX(8px)' },
+          { transform: 'translateX(0)' }
+        ], { duration: 300, easing: 'ease' });
+      }
+    });
+
+    // Enter to submit
+    passwordInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter') submitBtn.click();
+      if(e.key === 'Escape') closeModal();
+    });
+
+    /* ---------- AUDIO TOGGLE ---------- */
+    function updateAudioIcon(){
+      const isPaused = bgAudio.paused;
+      // show cross path if muted/paused
+      const cross = document.getElementById('cross');
+      if(isPaused){
+        cross.style.visibility = 'visible';
+        audioToggle.setAttribute('aria-pressed','true');
+      } else {
+        cross.style.visibility = 'hidden';
+        audioToggle.setAttribute('aria-pressed','false');
+      }
+    }
+    audioToggle.addEventListener('click', () => {
+      if(bgAudio.paused) {
+        bgAudio.play().catch(()=>{ /* ignore */});
+      } else {
+        bgAudio.pause();
+      }
+      updateAudioIcon();
+    });
+
+    // try to start audio on any first interaction (some browsers block autoplay)
+    function tryPlayAll(){
+      bgAudio.play().catch(()=>{});
+      clickAudio.play().then(()=>{ clickAudio.pause(); clickAudio.currentTime = 0; }).catch(()=>{});
+      updateAudioIcon();
+      window.removeEventListener('pointerdown', tryPlayAll);
+      window.removeEventListener('keydown', tryPlayAll);
+    }
+    window.addEventListener('pointerdown', tryPlayAll, { once:true });
+    window.addEventListener('keydown', tryPlayAll, { once:true });
+
+    // initial icon state
+    updateAudioIcon();
+
+    /* ---------- SNOW GENERATOR ---------- */
+    const snowContainer = document.getElementById('snow');
+    const FLAKE_COUNT = Math.min(120, Math.round(window.innerWidth / 8)); // scale with width
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+
+    for(let i=0;i<FLAKE_COUNT;i++){
+      const flake = document.createElement('div');
+      flake.className = 'snowflake';
+      const size = rand(6,18);
+      flake.style.width = size + 'px';
+      flake.style.height = size + 'px';
+      flake.style.left = Math.random()*100 + 'vw';
+      flake.style.opacity = rand(0.5,0.95);
+      flake.style.transform = `translateY(${ -rand(10,80) }vh)`;
+      flake.innerHTML = '&#10052;'; // snowflake character
+      flake.style.fontSize = size+'px';
+      flake.style.animation = `fall ${rand(8,20)}s linear ${rand(0,8)}s infinite`;
+      flake.style.pointerEvents = 'none';
+      snowContainer.appendChild(flake);
+    }
+
+    // dynamic keyframes for fall (insert into stylesheet)
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      @keyframes fall {
+        0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+        10% { opacity: .9; }
+        100% { transform: translateY(110vh) rotate(360deg); opacity: 0.9; }
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    /* ---------- ACCESSIBILITY: reduce motion support ---------- */
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(mq.matches){
+      document.querySelectorAll('.door').forEach(d => d.style.transition = 'none');
+      document.querySelectorAll('.snowflake').forEach(s => s.style.animation = 'none');
+      document.querySelector('h1').style.animation = 'none';
+    }
+
+    /* ---------- FINISHED ---------- */
+    // small friendly console message
+    console.log('Kalendarz Adwentowy Emilii — gotowy 🎄');
+
+  </script>
+</body>
+</html>
