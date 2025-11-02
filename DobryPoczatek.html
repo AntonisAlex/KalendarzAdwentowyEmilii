@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <title>1 grudnia</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap" rel="stylesheet">
+
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: 'Amasis MT Pro Medium', sans-serif;
+      background: url('https://wallpaperaccess.com/full/327393.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h1{
+      font-family: 'Momo Trust Display', sans-serif;
+      font-size: clamp(28px,4vw,46px);
+      color: #fff;
+      margin-bottom: 26px;
+      text-shadow: 0 6px 18px rgba(0,0,0,0.6);
+      background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,238,160,0.95), rgba(255,255,255,0.95));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmer 3.5s ease-in-out infinite;
+    }
+    @keyframes shimmer{
+      0%{background-position:-200px 0}
+      50%{background-position:200px 0}
+      100%{background-position:-200px 0}
+    }
+
+    .content {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 900px;
+      margin-bottom: 50px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.3), inset 0 0 30px rgba(255,255,255,0.15);
+    }
+
+    .content h2 {
+      font-family: 'Momo Trust Display', sans-serif;
+      color: #fff;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .content p {
+      line-height: 1.7;
+      font-size: 17px;
+      color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .videos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 1100px;
+      margin-bottom: 60px;
+    }
+
+    .video-box {
+      background: rgba(255,255,255,0.15);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .video-box:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+
+    iframe {
+      width: 100%;
+      height: 200px;
+      border: none;
+    }
+
+    /* SNOW */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      z-index: 50;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.9;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+    }
+
+    /* powrót */
+    .back {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      background: linear-gradient(145deg,#fffafa,#e9e9e9);
+      border-radius: 50px;
+      padding: 12px 18px;
+      color: #333;
+      text-decoration: none;
+      box-shadow: 8px 10px 20px rgba(0,0,0,0.2), -6px -6px 14px rgba(255,255,255,0.9);
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .back:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(255,215,90,0.3), -6px -6px 14px rgba(255,255,255,0.8);
+    }
+  </style>
+</head>
+
+<body>
+  <h1>1 grudnia</h1>
+
+  <div class="content">
+    <h2>Witaj w moim kalendarzu adwentowym!</h2>
+    <p>
+      Moim celem w stworzeniu tego kalendarza było abyś mogła dzięki mnie poczuć magię świąt, którą ja w tym roku szczególnie odczuwam. Najpierw przybliżę ci parę zasad. Ten kalendarz zawiera codzienne zaplanowane DIY i aktywności - nie musisz ich wypełnić w jeden dzień, ale raczej pokazuje to, co możemy zrobić w wolnej chwili począwszy od dnia dzisiejszego. A więc do dzieła, gdy już znasz zasady! Na dzisiaj przeznaczone są trzy różne DIY: bombkę, małą choinkę i śnieżynkę. Miłego tworzenia i do zobaczenia jutro!
+    </p>
+  </div>
+
+  <div class="videos">
+    <div class="video-box">
+      <iframe src="https://www.youtube.com/embed/LQ_e510-MeY?si=U6LVWw5tNdqlAZmy" allowfullscreen></iframe>
+    </div>
+    <div class="video-box">
+      <iframe src="https://www.youtube.com/embed/c-RYBcMhmMs?si=9KhuPGQqbmtJIYNo"" allowfullscreen></iframe>
+    </div>
+    <div class="video-box">
+      <iframe src="https://www.youtube.com/embed/VhKrDkAJgwk?si=YpLQPTybQglpfF5F" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <a href="index.html" class="back">← Wróć do kalendarza</a>
+
+  <!-- Śnieg -->
+  <div id="snow"></div>
+
+  <script>
+    /* ---------- SNOW GENERATOR ---------- */
+    const snowContainer = document.getElementById('snow');
+    const FLAKE_COUNT = Math.min(120, Math.round(window.innerWidth / 8));
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+
+    for(let i=0;i<FLAKE_COUNT;i++){
+      const flake = document.createElement('div');
+      flake.className = 'snowflake';
+      const size = rand(6,18);
+      flake.style.width = size + 'px';
+      flake.style.height = size + 'px';
+      flake.style.left = Math.random()*100 + 'vw';
+      flake.style.opacity = rand(0.5,0.95);
+      flake.style.transform = `translateY(${ -rand(10,80) }vh)`;
+      flake.innerHTML = '&#10052;';
+      flake.style.fontSize = size+'px';
+      flake.style.animation = `fall ${rand(8,20)}s linear ${rand(0,8)}s infinite`;
+      flake.style.pointerEvents = 'none';
+      snowContainer.appendChild(flake);
+    }
+
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      @keyframes fall {
+        0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+        10% { opacity: .9; }
+        100% { transform: translateY(110vh) rotate(360deg); opacity: 0.9; }
+      }
+    `;
+    document.head.appendChild(styleEl);
+  </script>
+</body>
+</html>
